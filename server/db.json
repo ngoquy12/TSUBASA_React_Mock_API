@@ -1,0 +1,74 @@
+{
+  "users": [
+    {
+      "id": 2,
+      "name": "Nguyễn Văn B",
+      "email": "nvb@gmail.com",
+      "address": "Cầu Giấy, Hà Nội"
+    },
+    {
+      "name": "Nguyễn Văn C",
+      "email": "nvc@gmail.com",
+      "address": "Thanh Xuân, Hà Nội",
+      "id": 3
+    }
+  ],
+  "products": [
+    {
+      "id": 1,
+      "name": "Cam",
+      "price": 12000
+    }
+  ],
+  "libraries": [
+    {
+      "id": 2,
+      "bookName": "Tuổi trẻ đáng giá bao nhiêu",
+      "studentName": "Trần Thị B",
+      "startDate": "11/04/2024",
+      "endDate": "15/04/2024"
+    },
+    {
+      "id": 3,
+      "bookName": "Nhà giả kim",
+      "studentName": "Lê Văn C",
+      "startDate": "12/04/2024",
+      "endDate": "17/04/2024"
+    },
+    {
+      "id": 5,
+      "bookName": "Dám bị ghét",
+      "studentName": "Ngô Văn E",
+      "startDate": "08/04/2024",
+      "endDate": "12/04/2024"
+    },
+    {
+      "id": 6,
+      "bookName": "Hạt giống tâm hồn",
+      "studentName": "Vũ Thị F",
+      "startDate": "10/04/2024",
+      "endDate": "16/04/2024"
+    },
+    {
+      "id": 7,
+      "bookName": "Trí tuệ xúc cảm",
+      "studentName": "Đỗ Văn G",
+      "startDate": "13/04/2024",
+      "endDate": "18/04/2024"
+    },
+    {
+      "id": 8,
+      "bookName": "Tư duy nhanh và chậm",
+      "studentName": "Bùi Thị H",
+      "startDate": "14/04/2024",
+      "endDate": "20/04/2024"
+    },
+    {
+      "id": 9,
+      "bookName": "7 thói quen của bạn trẻ thành đạt",
+      "studentName": "Trịnh Văn I",
+      "startDate": "15/04/2024",
+      "endDate": "21/04/2024"
+    }
+  ]
+}
