@@ -9,7 +9,7 @@ import {
   Table,
   Tag,
 } from "antd";
-import axios from "axios";
+import axios, { HttpStatusCode } from "axios";
 import React, { useEffect, useState } from "react";
 import http from "../utils/http";
 
@@ -65,7 +65,7 @@ export default function ManagerLibrary() {
       const response = await http.delete(`libraries/${id}`);
 
       //  Kiểm tra dữ liệu trả về từ server để xử lý các logic
-      if (response.status === 200) {
+      if (response.status === HttpStatusCode.Ok) {
         // Tắt modal
         handleCloseModalDelete();
 
