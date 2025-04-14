@@ -1,30 +1,36 @@
 import {
   Button,
-  Checkbox,
   Form,
   Input,
   message,
   Modal,
+  notification,
   Space,
   Table,
-  Tag,
 } from "antd";
-import axios, { HttpStatusCode } from "axios";
+import { HttpStatusCode } from "axios";
 import React, { useEffect, useState } from "react";
 import http from "../utils/http";
+import useDounce from "../hooks/useDounce";
 
 export default function ManagerLibrary() {
   const [libraries, setLibraries] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isShowModalConfirm, setIsShowModalConfirm] = useState(false);
-  const [id, setId] = useState(null);
+  const [id, setId] = useState(null); // Id quản lý trạng thái của việc sửa, xóa,...
+  const [isShowModal, setIsShowModal] = useState(false);
+  const [form] = Form.useForm();
+  const [inputValue, setInputValue] = useState("");
+
+  // Sử dụng cusome hook useDebounce
+  const delaySearch = useDounce(inputValue, 500);
 
   //   Gọi API lấy danh sách quản lý thư viện
   const getAllLibrary = async () => {
     // Hiển thị loading
     setIsLoading(true);
     try {
-      const response = await http.get("libraries");
+      const response = await http.get(`libraries?bookName_like=${delaySearch}`);
 
       if (response.data) {
         setLibraries(response.data);
@@ -39,7 +45,7 @@ export default function ManagerLibrary() {
 
   useEffect(() => {
     getAllLibrary();
-  }, []);
+  }, [delaySearch]);
 
   // Hàm mở modal xác nhận xóa
   const handleShowModalDelete = (id) => {
@@ -80,6 +86,21 @@ export default function ManagerLibrary() {
     }
   };
 
+  // Hàm mở modal chỉnh sửa
+  const handleShowModalEdit = (id) => {
+    // Mở modal
+    setIsShowModal(true);
+
+    // Tìm kiếm thông tin theo id
+    const findInfo = libraries.find((library) => library.id === id);
+
+    // Fill dữ liệu của thông tin vào trong Form
+    form.setFieldsValue(findInfo);
+
+    // Cập nhật lại id cần sửa
+    setId(id);
+  };
+
   const columns = [
     {
       title: "Tên sách",
@@ -107,31 +128,73 @@ export default function ManagerLibrary() {
       key: "action",
       render: (_, record) => (
         <Space size="middle">
-          <a>Invite {record.name}</a>
+          <a onClick={() => handleShowModalEdit(record.id)}>Edit</a>
           <a onClick={() => handleShowModalDelete(record.id)}>Delete</a>
         </Space>
       ),
     },
   ];
 
-  const onFinish = (values) => {
-    console.log("Success:", values);
+  // Hàm mở modal thêm mới
+  const handleShowModal = () => {
+    setIsShowModal(true);
   };
 
-  const onFinishFailed = (errorInfo) => {
-    console.log("Failed:", errorInfo);
+  // Hàm đóng modal thêm mới
+  const handleCloseModal = () => {
+    setIsShowModal(false);
+
+    // Cập nhật lại id
+    setId(null);
+  };
+
+  const onFinish = async (values) => {
+    // Gọi API thêm mới thông tin
+    try {
+      if (id) {
+        // Tiến hành cập nhật
+        await http.put(`libraries/${id}`, values);
+
+        // Kiểm tra điều kiện
+      } else {
+        // Tiến hành thêm
+        await http.post("libraries", values);
+      }
+
+      // Tắt modal
+      handleCloseModal();
+
+      // Render lại giao diện
+      getAllLibrary();
+
+      // Hiển thị thông báo
+      notification.success({
+        message: "Thành công",
+        description: `${id ? "Thêm mới" : "Cập nhật"} thông tin thành công`,
+      });
+    } catch (error) {
+      notification.success({
+        message: "Thất bại",
+        description: `${id ? "Cập nhật" : "Thêm mói"} thông tin thất bại`,
+      });
+    }
   };
 
   return (
     <>
       {/* Modal thêm mới/sửa thông tin */}
-      <Modal open={false} title="Thêm mới thông tin" footer={null}>
+      <Modal
+        onCancel={handleCloseModal}
+        open={isShowModal}
+        title={`${id ? "Cập nhật" : "Thêm mới"} thông tin`}
+        footer={null}
+      >
         <Form
+          form={form}
           layout="vertical"
           name="basic"
           initialValues={{ remember: true }}
           onFinish={onFinish}
-          onFinishFailed={onFinishFailed}
           autoComplete="off"
         >
           <Form.Item
@@ -175,9 +238,11 @@ export default function ManagerLibrary() {
           </Form.Item>
 
           <Form.Item className="flex justify-end gap-3 mb-0">
-            <Button htmlType="button">Hủy</Button>
+            <Button onClick={handleCloseModal} htmlType="button">
+              Hủy
+            </Button>
             <Button className="ml-2" type="primary" htmlType="submit">
-              Thêm
+              {id ? "Lưu" : "Thêm"}
             </Button>
           </Form.Item>
         </Form>
@@ -198,11 +263,25 @@ export default function ManagerLibrary() {
       <div className="flex flex-col">
         <header className="flex items-center justify-between mb-3">
           <h3>Quản lý mượn trả sách</h3>
-          <Button type="primary">Thêm thông tin</Button>
+          <Button onClick={handleShowModal} type="primary">
+            Thêm thông tin
+          </Button>
         </header>
 
+        <div className="mb-3">
+          <Input
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+          />
+        </div>
+
         <main>
-          <Table loading={isLoading} columns={columns} dataSource={libraries} />
+          <Table
+            rowKey="id"
+            loading={isLoading}
+            columns={columns}
+            dataSource={libraries}
+          />
         </main>
       </div>
     </>
